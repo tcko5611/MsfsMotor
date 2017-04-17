@@ -5,9 +5,13 @@
  */
 package tw.com.hasco.arduino;
 
+import java.awt.Toolkit;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+import javax.swing.JFrame;
 import jssc.SerialPortException;
+import tw.com.hasco.arduino.SPObserver;
+import tw.com.hasco.arduino.StewPlatform;
 
 /**
  *
@@ -21,6 +25,9 @@ public class Plot2DFrame extends javax.swing.JFrame implements SPObserver {
     StewPlatform sp;
     public Plot2DFrame(StewPlatform sp) {
         this.sp = sp;
+        this.setDefaultCloseOperation(JFrame.HIDE_ON_CLOSE);
+        this.setIconImage(Toolkit.getDefaultToolkit().getImage(getClass().getResource("/draw/h.jpg")));
+        this.setTitle("2D圖");
         initComponents();
         plot2DPanel.setSp(sp);
     }
@@ -138,7 +145,7 @@ public class Plot2DFrame extends javax.swing.JFrame implements SPObserver {
             
                
             try {
-                StewPlatform sp = new StewPlatform();
+                StewPlatform sp = new StewPlatform("com5");
                 new Plot2DFrame(sp).setVisible(true);
             } catch (SerialPortException ex) {
                 Logger.getLogger(Plot2DFrame.class.getName()).log(Level.SEVERE, null, ex);

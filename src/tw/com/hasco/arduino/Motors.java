@@ -22,7 +22,7 @@ public class Motors {
     double servo_mult = 2000.0 / Math.PI;
     int dead_zone = 10;
     int servo_zero[] = {1500, 1500, 1500, 1500, 1500, 1500};
-    int servo_max = 2055, servo_min = 944; // max and min rotation angle
+    int servo_max = 1800, servo_min = 1200; // max and min rotation angle
 
     /**
      * This constructor try to connected com port, if fail throw exception to
@@ -30,8 +30,8 @@ public class Motors {
      *
      * @throws SerialPortException
      */
-    public Motors() throws SerialPortException {
-        controArduino = new ControlArduino("com5");
+    public Motors(String com) throws SerialPortException {
+        controArduino = new ControlArduino(com);
         servo_pos = new int[6];
         servo_pos[0] = 1500;
         servo_pos[1] = 1500;
@@ -41,6 +41,10 @@ public class Motors {
         servo_pos[5] = 1500;
         double thetas[] = new double[6];
         updateMotors(thetas);
+    }
+    public void closPort() throws SerialPortException {
+        if (controArduino != null) 
+            controArduino.closePort();
     }
 
     /**
@@ -74,7 +78,7 @@ public class Motors {
 
         Motors motors;
 
-        motors = new Motors();
+        motors = new Motors("com5");
         for (int degree = 0; degree < 90; ++degree) {
 
             double theta = degree * Math.PI / 180.0;
@@ -103,5 +107,9 @@ public class Motors {
                 Logger.getLogger(Motors.class.getName()).log(Level.SEVERE, null, ex);
             }
         }
+        double thetas[] = new double[6];
+    
+        motors.updateMotors(thetas);
     }
+    
 }

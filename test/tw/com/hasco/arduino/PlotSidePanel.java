@@ -8,15 +8,19 @@ package tw.com.hasco.arduino;
 import java.awt.Color;
 import java.awt.Graphics;
 import java.awt.Graphics2D;
+import java.awt.Polygon;
 import java.awt.RenderingHints;
 import javax.swing.JFrame;
 import jssc.SerialPortException;
+import tw.com.hasco.arduino.Point;
+import tw.com.hasco.arduino.StewPlatform;
 
 /**
  *
  * @author DELL
  */
-public class Plot2DPanel extends javax.swing.JPanel {
+public class PlotSidePanel extends javax.swing.JPanel {
+
     double sx0, sz0;
     int cxmax, cxmin;
     int czmax, czmin;
@@ -26,7 +30,7 @@ public class Plot2DPanel extends javax.swing.JPanel {
     /**
      * Creates new form PlotPanel
      */
-    public Plot2DPanel() {
+    public PlotSidePanel() {
         initComponents();
         sx0 = 200;
         sz0 = 300;
@@ -36,12 +40,13 @@ public class Plot2DPanel extends javax.swing.JPanel {
         czmin = -80;
         sp = null;
     }
+
     public void setSp(StewPlatform sp) {
         this.sp = sp;
     }
 
     public Point trasform3Dto2D(double x, double y, double z) {
-        int sx = (int) (sx0 + mag * x);
+        int sx = (int) (sx0 + mag * y);
         int sz = (int) (sz0 - z * mag);
         return new Point(sx, sz);
     }
@@ -62,7 +67,9 @@ public class Plot2DPanel extends javax.swing.JPanel {
     }
 
     private void drawSP(Graphics2D g2d) {
-        if(sp == null) return;
+        if (sp == null) {
+            return;
+        }
         double p[][] = sp.getP(); // motor center, is equal zero
         double q[][] = sp.getQ(); // the L2 end on bottom
         double r[][] = sp.getR(); // the L2 end on top
@@ -78,21 +85,23 @@ public class Plot2DPanel extends javax.swing.JPanel {
         int x[] = new int[6];
         int y[] = new int[6];
         // Polygon poly;
-        for (int i = 2; i < 4; ++i) {
+        for (int i = 0; i < 6; ++i) {
             x[i] = p_p[i].getX();
             y[i] = p_p[i].getY();
             g2d.drawString(Integer.toString(i), x[i], y[i]);
         }
-        g2d.drawLine(x[2], y[2], x[3], y[3]);
-        for (int i = 2; i < 4; ++i) {
+        // g2d.drawLine(x[2], y[2], x[3], y[3]);
+        for (int i = 0; i < 6; ++i) {
             x[i] = p_r[i].getX();
             y[i] = p_r[i].getY();
             g2d.drawString(Integer.toString(i), x[i], y[i]);
         }
-
+        Polygon poly = new Polygon(x, y, 6);
+        g2d.setColor(new Color(0, 153, 51));
+        g2d.fill(poly);
         g2d.drawLine(x[2], y[2], x[3], y[3]);
         g2d.setColor(Color.red);
-        for (int i = 2; i < 4; ++i) {
+        for (int i = 0; i < 6; ++i) {
             g2d.drawLine(p_p[i].getX(), p_p[i].getY(), p_q[i].getX(), p_q[i].getY());
             g2d.drawLine(p_q[i].getX(), p_q[i].getY(), p_r[i].getX(), p_r[i].getY());
         }
@@ -108,7 +117,9 @@ public class Plot2DPanel extends javax.swing.JPanel {
                 RenderingHints.VALUE_ANTIALIAS_ON
         );
         drawAxis(g2d);
-        if (sp != null) drawSP(g2d);
+        if (sp != null) {
+            drawSP(g2d);
+        }
     }
 
     /**
@@ -132,9 +143,9 @@ public class Plot2DPanel extends javax.swing.JPanel {
         );
     }// </editor-fold>//GEN-END:initComponents
     public static void main(String[] args) throws SerialPortException {
-        StewPlatform sp = new StewPlatform();
+        StewPlatform sp = new StewPlatform("com5");
         JFrame f = new JFrame("Demo");
-        Plot2DPanel p = new Plot2DPanel();
+        PlotSidePanel p = new PlotSidePanel();
         p.setSp(sp);
         f.add(p);
 

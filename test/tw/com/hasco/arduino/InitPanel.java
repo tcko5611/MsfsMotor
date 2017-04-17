@@ -6,6 +6,7 @@
 package tw.com.hasco.arduino;
 
 import java.util.ArrayList;
+import tw.com.hasco.arduino.StewPlatform;
 
 /**
  *
@@ -80,21 +81,31 @@ public class InitPanel extends javax.swing.JPanel {
 
         theta_max.setText("2000");
 
-        z_home.setText("4.25");
+        z_home.setText("207");
+        z_home.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                z_homeActionPerformed(evt);
+            }
+        });
 
-        L2.setText("4.72");
+        L2.setText("210");
 
-        L1.setText("1.0");
+        L1.setText("30");
 
-        PD.setText("3.3");
+        PD.setText("60");
 
-        RD.setText("2.395");
+        RD.setText("60");
 
-        theta_s.setText("-60,120,180,0,60,-120");
+        theta_s.setText("120,-60,0,180,-120,60");
 
         theta_p.setText("23.2");
 
-        theta_r.setText("48");
+        theta_r.setText("20");
+        theta_r.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                theta_rActionPerformed(evt);
+            }
+        });
 
         setButton.setText("set");
         setButton.addActionListener(new java.awt.event.ActionListener() {
@@ -216,6 +227,14 @@ public class InitPanel extends javax.swing.JPanel {
         ps.add(Double.parseDouble(theta_min.getText()));
         ps.add(Double.parseDouble(theta_max.getText()));
     }//GEN-LAST:event_setButtonActionPerformed
+
+    private void theta_rActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_theta_rActionPerformed
+        // TODO add your handling code here:
+    }//GEN-LAST:event_theta_rActionPerformed
+
+    private void z_homeActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_z_homeActionPerformed
+        // TODO add your handling code here:
+    }//GEN-LAST:event_z_homeActionPerformed
 
 
     // Variables declaration - do not modify//GEN-BEGIN:variables

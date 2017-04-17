@@ -12,6 +12,7 @@ import java.awt.Polygon;
 import java.awt.RenderingHints;
 import javax.swing.JFrame;
 import jssc.SerialPortException;
+import tw.com.hasco.arduino.StewPlatform;
 
 /**
  *
@@ -156,7 +157,7 @@ public class PlotPanel extends javax.swing.JPanel {
         );
     }// </editor-fold>//GEN-END:initComponents
     public static void main(String[] args) throws SerialPortException {
-        StewPlatform sp = new StewPlatform();
+        StewPlatform sp = new StewPlatform("com5");
         JFrame f = new JFrame("Demo");
         PlotPanel p = new PlotPanel();
         p.setSp(sp);

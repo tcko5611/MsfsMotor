@@ -5,9 +5,13 @@
  */
 package tw.com.hasco.arduino;
 
+import java.awt.Toolkit;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+import javax.swing.JFrame;
 import jssc.SerialPortException;
+import tw.com.hasco.arduino.SPObserver;
+import tw.com.hasco.arduino.StewPlatform;
 
 /**
  *
@@ -22,6 +26,9 @@ public class PlotFrame extends javax.swing.JFrame implements SPObserver {
      */
     public PlotFrame(StewPlatform sp) {
         this.sp = sp;
+        this.setDefaultCloseOperation(JFrame.HIDE_ON_CLOSE);
+        this.setIconImage(Toolkit.getDefaultToolkit().getImage(getClass().getResource("/draw/h.jpg")));
+        this.setTitle("Plot圖");
         initComponents();
         plotPanel.setSp(sp);
     }
@@ -136,7 +143,7 @@ public class PlotFrame extends javax.swing.JFrame implements SPObserver {
         /* Create and display the form */
         java.awt.EventQueue.invokeLater(() -> {
             try {
-                StewPlatform sp = new StewPlatform();
+                StewPlatform sp = new StewPlatform("com");
                 new PlotFrame(sp).setVisible(true);
                 sp.setZ(3.0);
             } catch (SerialPortException ex) {

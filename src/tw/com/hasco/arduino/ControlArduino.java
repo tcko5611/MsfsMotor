@@ -9,13 +9,14 @@ import jssc.*;
 import tw.com.hasco.MSFS.Debugger;
 
 // import tw.com.hasco.MSFS.Debugger;
-
 /**
  * send information to arduino through com=comName port
+ *
  * @author DELL
- * 
+ *
  */
 public class ControlArduino {
+
     SerialPort serialPort;
 
     public ControlArduino(String comName) throws SerialPortException {
@@ -30,11 +31,20 @@ public class ControlArduino {
                 | SerialPort.FLOWCONTROL_RTSCTS_OUT);
     }
 
+    public void closePort() throws SerialPortException {
+        if (serialPort != null && serialPort.isOpened()) {
+            serialPort.purgePort(1);
+            serialPort.purgePort(2);
+            serialPort.closePort();
+        }
+
+    }
+
     public void updateMachine(String str) throws SerialPortException {
-            serialPort.writeString(str);
-            Debugger.log("input: " + str);
-            String str1 = serialPort.readString();
-            Debugger.log("output: " + str1); 
+        serialPort.writeString(str);
+        Debugger.log("input: " + str);
+        String str1 = serialPort.readString();
+        Debugger.log("output: " + str1);
     }
 
 }

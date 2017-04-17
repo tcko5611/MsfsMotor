@@ -19,7 +19,9 @@ import tw.com.hasco.MSFS.Observer;
  *
  * @author DELL
  */
-public class StewPlatform implements Observer, Runnable {
+public class StewPlatform implements Runnable {
+
+    private final Object MUTEX = new Object();
 
     /*
      * ******************************************************************************
@@ -54,6 +56,7 @@ public class StewPlatform implements Observer, Runnable {
      * pe = location and orientation of end effector frame relative to the base frame [sway, surge, heave, pitch, roll, yaw)
      * theta_a = angle of the servo arm 
      * servo_pos = value written to each servo
+    * p = position of rotation center
      * q = position of lower mounting point of connecting link [x,y,x][1-6] 
      * r = position of upper mounting point of connecting link 
      * dl = difference between x,y,z coordinates of q and r 
@@ -71,8 +74,8 @@ public class StewPlatform implements Observer, Runnable {
             L1 = 30,
             L2 = 210,
             z_home = 207,
-            theta_min = -50.0 * PI / 180.0, // theta min
-            theta_max = 50.0 * PI / 180.0; // theta_max
+            theta_min = -30.0 * PI / 180.0, // theta min
+            theta_max = 30.0 * PI / 180.0; // theta_max
     double p[][], re[][];
     double pe[], theta_a[], theta_a1[], servo_pos[], q[][], r[][], dl[][], dl2[], motor_theta[];
     // Observer
@@ -102,7 +105,7 @@ public class StewPlatform implements Observer, Runnable {
     }
 
     /**
-     * use to calculate the motor arm angles, after given pe(x, y,z, pitch,
+     * use to calculate the motor arm angles, after given pe(x, y, z, pitch,
      * roll, yaw), using recusive calculation to get correct angles
      */
     private void recCalAngle() {
@@ -166,8 +169,20 @@ public class StewPlatform implements Observer, Runnable {
      * @param o : oberver of this
      */
     public void addOberver(SPObserver o) {
-        observers.add(o);
+        if (o == null) {
+            throw new NullPointerException("Null Observer");
+        }
+        synchronized (MUTEX) {
+            if (!observers.contains(o)) {
+                observers.add(o);
+            }
+        }
+    }
 
+    public void removeObserver(SPObserver o) {
+        synchronized (MUTEX) {
+            observers.remove(o);
+        }
     }
 
     /**
@@ -179,7 +194,7 @@ public class StewPlatform implements Observer, Runnable {
         });
     }
 
-    public StewPlatform() throws SerialPortException {
+    public StewPlatform(String com) throws SerialPortException {
         observers = new LinkedList<>();
         theta_r = Math.toRadians(20); // set theta r
         theta_p = Math.toRadians(20); // set theta p
@@ -206,14 +221,22 @@ public class StewPlatform implements Observer, Runnable {
         dl = new double[3][6];
         dl2 = new double[6];
         try {
-            motors = new Motors();
+            motors = new Motors(com);
         } catch (SerialPortException ex) {
             motors = null;
             Logger.getLogger(StewPlatform.class.getName()).log(Level.SEVERE, null, ex);
         }
         calRotAngle();
     }
-
+public void closePort() {
+    if (motors != null) {
+        try {
+            motors.closPort();
+        } catch (SerialPortException ex) {
+            Logger.getLogger(StewPlatform.class.getName()).log(Level.SEVERE, null, ex);
+        }
+    }
+}
     public void setInitParams(ArrayList<Double> ps) {
         int i = 0;
         theta_r = Math.toRadians(ps.get(i++));
@@ -254,17 +277,17 @@ public class StewPlatform implements Observer, Runnable {
     }
 
     public void setPitch(double d) {
-        pe[3] = d;
+        pe[3] = d * Math.PI / 180.0;
         calRotAngle();
     }
 
     public void setRoll(double d) {
-        pe[4] = d;
+        pe[4] = d * Math.PI / 180.0;
         calRotAngle();
     }
 
     public void setYaw(double d) {
-        pe[5] = d;
+        pe[5] = d * Math.PI / 180.0;
         calRotAngle();
     }
 
@@ -287,10 +310,9 @@ public class StewPlatform implements Observer, Runnable {
         synchronized (this) {
             for (int i = 0; i < 6; ++i) {
                 if (i % 2 == 1) {
-                    motor_theta[i] = theta_a[i];
-                } else {
-                    double theta = -theta_a[i];
                     motor_theta[i] = -theta_a[i];
+                } else {
+                    motor_theta[i] = theta_a[i];
                 }
             }
         }
@@ -308,20 +330,22 @@ public class StewPlatform implements Observer, Runnable {
     public static void main(String[] args) {
         try {
             // TODO code application logic here
-            StewPlatform sp = new StewPlatform();
-            sp.setZ(3);
-            sp.setZ(0);
+            StewPlatform sp = new StewPlatform("com5");
+            for (int i = 0; i < 90; ++i) {
+                double theta = i * Math.PI / 180.0;
+                Debugger.log("Theta:" + i);
+                sp.setPitch(theta);
+            }
         } catch (SerialPortException ex) {
             Logger.getLogger(StewPlatform.class.getName()).log(Level.SEVERE, null, ex);
         }
     }
 
-    @Override
     public void update(FSBasic fsBasic) {
         pe[3] = Math.toRadians(fsBasic.pitch());
         pe[4] = Math.toRadians(fsBasic.bank());
         // don't take the yaw angle
-        // pe[5] = Math.toRadians(fsBasic.heading() - 90.0);
+        pe[5] = Math.toRadians(fsBasic.beta());
         // Debugger.log(fsBasic.pitch() + "," + fsBasic.bank() + "," + fsBasic.heading());
         calRotAngle();
     }
@@ -342,6 +366,7 @@ public class StewPlatform implements Observer, Runnable {
         while (running) {
             updateMotors();
         }
+        closePort();
     }
 
 }

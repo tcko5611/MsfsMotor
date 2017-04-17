@@ -8,6 +8,7 @@ package tw.com.hasco.arduino;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import jssc.SerialPortException;
+import tw.com.hasco.arduino.StewPlatform;
 
 /**
  *
@@ -18,18 +19,22 @@ public class MainFrame extends javax.swing.JFrame {
     StewPlatform sp;
     PlotFrame plotFrame;
     Plot2DFrame plot2DFrame;
+    PlotSideFrame plotSideFrame;
     /**
      * Creates new form MainFrame
      */
     public MainFrame() throws SerialPortException {
-        sp = new StewPlatform();
+        sp = new StewPlatform("com5");
         initComponents();
         plotFrame = new PlotFrame(sp);
         plot2DFrame = new Plot2DFrame(sp);
+        plotSideFrame = new PlotSideFrame(sp);
         sp.addOberver(plotFrame);
         sp.addOberver(plot2DFrame);
+        sp.addOberver(plotSideFrame);
         plotFrame.setVisible(true);
         plot2DFrame.setVisible(true);
+        plotSideFrame.setVisible(true);
         this.initPanel.setSp(sp);
         this.motionPanel.setSp(sp);
     }
@@ -45,8 +50,42 @@ public class MainFrame extends javax.swing.JFrame {
 
         initPanel = new tw.com.hasco.arduino.InitPanel();
         motionPanel = new tw.com.hasco.arduino.MotionPanel();
+        jMenuBar1 = new javax.swing.JMenuBar();
+        jMenu1 = new javax.swing.JMenu();
+        jMenuItem1 = new javax.swing.JMenuItem();
+        jMenuItem2 = new javax.swing.JMenuItem();
+        jMenu2 = new javax.swing.JMenu();
 
         setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
+
+        jMenu1.setText("Plot");
+        jMenu1.setFont(new java.awt.Font("微軟正黑體", 0, 14)); // NOI18N
+
+        jMenuItem1.setFont(new java.awt.Font("微軟正黑體", 0, 14)); // NOI18N
+        jMenuItem1.setText("Plot2D");
+        jMenuItem1.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                jMenuItem1ActionPerformed(evt);
+            }
+        });
+        jMenu1.add(jMenuItem1);
+
+        jMenuItem2.setFont(new java.awt.Font("微軟正黑體", 0, 14)); // NOI18N
+        jMenuItem2.setText("Plot");
+        jMenuItem2.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                jMenuItem2ActionPerformed(evt);
+            }
+        });
+        jMenu1.add(jMenuItem2);
+
+        jMenuBar1.add(jMenu1);
+
+        jMenu2.setText("Edit");
+        jMenu2.setFont(new java.awt.Font("微軟正黑體", 0, 14)); // NOI18N
+        jMenuBar1.add(jMenu2);
+
+        setJMenuBar(jMenuBar1);
 
         javax.swing.GroupLayout layout = new javax.swing.GroupLayout(getContentPane());
         getContentPane().setLayout(layout);
@@ -65,11 +104,21 @@ public class MainFrame extends javax.swing.JFrame {
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                     .addComponent(motionPanel, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
                     .addComponent(initPanel, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
-                .addContainerGap(15, Short.MAX_VALUE))
+                .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
         );
 
         pack();
     }// </editor-fold>//GEN-END:initComponents
+
+    private void jMenuItem1ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jMenuItem1ActionPerformed
+        // TODO add your handling code here:
+        this.plot2DFrame.setVisible(true);
+    }//GEN-LAST:event_jMenuItem1ActionPerformed
+
+    private void jMenuItem2ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jMenuItem2ActionPerformed
+        // TODO add your handling code here:
+        this.plotFrame.setVisible(true);
+    }//GEN-LAST:event_jMenuItem2ActionPerformed
 
     /**
      * @param args the command line arguments
@@ -112,6 +161,11 @@ public class MainFrame extends javax.swing.JFrame {
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private tw.com.hasco.arduino.InitPanel initPanel;
+    private javax.swing.JMenu jMenu1;
+    private javax.swing.JMenu jMenu2;
+    private javax.swing.JMenuBar jMenuBar1;
+    private javax.swing.JMenuItem jMenuItem1;
+    private javax.swing.JMenuItem jMenuItem2;
     private tw.com.hasco.arduino.MotionPanel motionPanel;
     // End of variables declaration//GEN-END:variables
 }
